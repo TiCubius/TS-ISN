@@ -1,0 +1,14 @@
+*                 {font-family: "Roboto"}
+html, body        {margin: 0; padding: 0; background: #fff;}
+
+.header           {display: block; text-align: center; border-bottom: 1px solid #b7b7b7;}
+.header .timer    {width: 100%; height: 5px; background: #ffa400;}
+.header .hearts   {color: #ff0d00; margin: 20px 0;}
+.header .last     {color: #c50a00;}
+.header .broken   {color: #151414;}
+
+.game             {margin-top: 5%; text-align: center;}
+.game .separation {color: #C7C7C7; font-size: 32px; margin: 0;}
+.game .input      {width: 300px; height: 38px; padding: 0 15px; margin: 15px; outline: none; border: 1px solid #b7b7b7; border-radius: 5px; outline: none;}
+.game .error      {border: 1px solid lightcoral;}
+.game .success 	  {border: 1px solid lightgreen;}
