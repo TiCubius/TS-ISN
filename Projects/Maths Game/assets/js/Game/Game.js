@@ -14,7 +14,8 @@ Game.settings =
 	*/
 
 	lives: 3,
-	difficulty: 2
+	difficulty: 2,
+	operations: ["+", "-", "x", "/"]
 }
 
 Game.status = 
@@ -33,7 +34,7 @@ Game.status =
 
 	hasStarted: false,
 	currentTimer: 0,
-	baseTimer: 10,
+	baseTimer: 5,
 	round: 0
 }
 
@@ -50,8 +51,8 @@ Game.hasStarted = () =>
 	return Game.status.hasStarted
 }
 
-// FUNCTION: addRound()
-Game.addRound = () =>
+// FUNCTION: newRound()
+Game.newRound = () =>
 {
 	/* CHECKS BEFORE ACTION
 		* THE GAME HAS STARTED
@@ -60,7 +61,15 @@ Game.addRound = () =>
 		RETURNS: Game.status.round
 	*/
 
-	if (Game.hasStarted() && Player.isAlive()) {Game.status.round++}
+	UI.setLifeDisplay()
+	if (Game.hasStarted() && Player.isAlive()) 
+	{
+		Game.status.round++
+
+		OP.generateNewOperation(Game.settings.operations[Math.ceil(Math.random() * (4) -1)])
+		UI.startTimer()
+
+	}
 	return Game.getCurrentRound()
 }
 
@@ -76,6 +85,13 @@ Game.getCurrentRound = () =>
 	return Game.status.round
 }
 
+// FUNCTION: roundLost()
+Game._roundLost = () =>
+{
+	Player._takeLife()
+	setTimeout(() => {Game.newRound()}, 1000)
+}
+
 // FUNCTION: startGame()
 Game.startGame = () =>
 {
@@ -86,6 +102,10 @@ Game.startGame = () =>
 	*/
 
 	if (Game.hasStarted()) {return false}
+	
+	Game.status.hasStarted = true
+	Player._setLives(Game.settings.lives)
+	Game.newRound()
 }
 
 // FUNCTION: stopGame()
@@ -98,4 +118,5 @@ Game.stopGame = () =>
 	*/
 
 	if (!Game.hasStarted()) {return false}
+	Game.status.hasStarted = false
 }

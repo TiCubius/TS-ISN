@@ -13,14 +13,8 @@ require.config(
 })
 
 require(
-	["jquery", "jqueryui", "Game/Game", "Game/Player", "Game/Operations", "UI/Ui"], ($, game, ui) => 
+	["jquery", "jqueryui", "Game/Events", "Game/Game", "Game/Player", "Game/Operations", "UI/Ui"], ($, events, game, ui) => 
 	{
-		Game.status.hasStarted = true
-		Player.status.lives++ // CHEATY, I KNOW
-		Player.addLife()
-		console.log(Player.getPlayerLives() + " lives")
-		UI.setLifeDisplay()
-		UI.startTimer()
-
+		Events.loadEvents()
 	}
 )

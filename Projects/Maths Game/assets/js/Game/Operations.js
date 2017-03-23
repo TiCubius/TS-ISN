@@ -68,7 +68,7 @@ OP.setMemory = (round, given, time) =>
 	*/	
 
 	if (!(round in OP.results)) {return false}
-	if (!given || !time) {return false}
+	if (!(new RegExp("[0-9]+").test(given)) || !time) {return false}
 
 	OP.results[round].given = given
 	OP.results[round].time  = time

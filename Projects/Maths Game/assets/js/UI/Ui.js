@@ -61,7 +61,9 @@ UI.setLifeDisplay = () =>
 	if (lives === 0)
 	{
 		// PLAYER IS DEAD
+		Game.stopGame()
 		$(".hearts").append('<i class="fa fa-heart broken"></i> \n')
+		$(".equation").text("Perdu !")
 	}
 
 	if (lives === 1)
@@ -70,10 +72,13 @@ UI.setLifeDisplay = () =>
 		$(".hearts").append('<i class="fa fa-heart last"></i> \n')		
 	}
 
-	for (var i = 0; i < lives; i++)
+	if (lives > 1)
 	{
-		// LOOP: ADD 1 HEART/LIFE
-		$(".hearts").append('<i class="fa fa-heart"></i> \n')
+		for (var i = 0; i < lives; i++)
+		{
+			// LOOP: ADD 1 HEART/LIFE
+			$(".hearts").append('<i class="fa fa-heart"></i> \n')
+		}
 	}
 
 	return true
@@ -118,6 +123,10 @@ UI.startTimer = () =>
 		if (Game.status.currentTimer <= 0)
 		{
 			// TIMER <= 0, NO NEED TO CONITNUE THE TIMER
+
+			OP.setMemory(Game.getCurrentRound(), $("input").val(), 0)
+			UI.setInputDisplay("error")
+			Game._roundLost()
 
 			$(".timer").animate({width: '100%'}, 1000, "easeInCubic")
 			clearInterval(UI.status.timerInterval)

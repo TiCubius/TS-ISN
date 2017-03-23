@@ -12,7 +12,7 @@ Player.status =
 }
 
 // FUNCTION: addLife(), ADD ONE LIFE
-Player.addLife = () =>
+Player._addLife = () =>
 {
 	/* CHECKS BEFORE ACTIONS
 		* THE GAME HAS STARTED
@@ -26,7 +26,7 @@ Player.addLife = () =>
 }
 
 // FUNCTION: takeLife(), TAKE ONE LIFE
-Player.takeLife = () =>
+Player._takeLife = () =>
 {
 	/* CHECKS BEFORE ACTIONS
 		* THE GAME HAS STARTED
@@ -37,6 +37,20 @@ Player.takeLife = () =>
 
 	if ((Game.hasStarted()) && (Player.isAlive())) {Player.status.lives--}
 	return Player.status.lives
+}
+
+// FUNCTION: _setLife(lives)
+Player._setLives = (lives) => 
+{
+	/* CHECKS BEFORE ACTIONS
+		* NONE
+
+		RETURNS: true
+	*/
+
+	Player.status.lives = lives
+	return true
+
 }
 
 // FUNCTION: getPlayerLives(), RETRUN THE LIVES OF THE PLAYER
