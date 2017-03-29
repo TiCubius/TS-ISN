@@ -1,77 +1,76 @@
-// ISN Project / OPERATION CONTROL 
-// VERSION 1.00, latest updated: 
+// ISN Project / OPERATION SYSTEM 
+// VERSION 1.01, latest updated: 25/03/2017
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
 var OP = {}
+
 OP.results = {}
 
-// FUNCTION: generateNewOperation(operation)
 OP.generateNewOperation = (operation) =>
 {
-	/* CHECKS BEFORE ACTION
-		* THE GAME HAS STARTED
-		* THE PLAYER IS STILL ALIVE
-		* OPERATION IS KNOWN
+	// FUNCTION: Generates a new question
+	// INTERACT: [GAME]
+	// CHECKING: [Game has started, Operation in known]
 
-		RETURNS: true or false
-	*/
+	if (!Game.hasStarted()) {return false}
+	if (Game.settings.operations.indexOf(operation) == "-1") {return false}
 
-	if (!Game.hasStarted() || !Player.isAlive()) {return false}
-	if ((["+", "-", "/", "x"].indexOf(operation)) == "-1") {return false}
+	let currentRound = Game.getCurrentRound()
+	let integer_1 = Math.ceil(Math.random() * (10 - 1) + 1)
+	let integer_2 = Math.ceil(Math.random() * (10 - 1) + 1)
 
-	let round = Game.getCurrentRound()
-	let operand_1 = Math.ceil(Math.random() * (10-1) +1)
-	let operand_2 = Math.ceil(Math.random() * (10-1) +1)
+	if (operation === "+") {hasMemoryGenerated = OP.generateMemory(currentRound, integer_1, integer_2, operation, integer_1 + integer_2)}
+	if (operation === "-") {hasMemoryGenerated = OP.generateMemory(currentRound, integer_1, integer_2, operation, integer_1 - integer_2)}
+	if (operation === "x") {hasMemoryGenerated = OP.generateMemory(currentRound, integer_1, integer_2, operation, integer_1 * integer_2)}
+	if (operation === "/") {hasMemoryGenerated = OP.generateMemory(currentRound, (integer_1 * integer_2), integer_2, operation, (integer_1 * integer_2) / integer_2)}
 
-	if (operation === "+") {hasMemoryGenerated = OP._generateMemory(round, operand_1, operand_2, operation, operand_1 + operand_2)}
-	if (operation === "-") {hasMemoryGenerated = OP._generateMemory(round, operand_1, operand_2, operation, operand_1 - operand_2)}
-	if (operation === "x") {hasMemoryGenerated = OP._generateMemory(round, operand_1, operand_2, operation, operand_1 * operand_2)}
-	if (operation === "/") {hasMemoryGenerated = OP._generateMemory(round, (operand_1 * operand_2), operand_2, operation, (operand_1 * operand_2) / operand_2)}
+	if (!hasMemoryGenerated) {return false}
 
-	UI.setOperationDisplay()
-
-	if (hasMemoryGenerated) {return true}
-	return false
+	console.log("expected: " + OP.results.latest.expected)
+	return true
 }
 
-// FUNCTION: _generateMemory()
-OP._generateMemory = (round, operand_1, operand_2, operation, expected, given, time) =>
+OP.generateMemory = (round, integer_1, integer_2, operation, expected) =>
 {
-	/* CHECKS BEFORE ACTION
-		* ROUND hasn't already been registred
-
-		RETURNS: true or false
-	*/
+	// FUNCTION: Register the operation in a list
+	// CHECKING: Round hasn't been registred yet
 
 	if (round in OP.results) {return false}
-	OP.results[round] = 
+	OP.results[round] =
 	{
-		operand_1: operand_1,
 		operation: operation,
-		operand_2: operand_2,
+		integer_1: integer_1,
+		integer_2: integer_2,
 		expected: expected,
-		given: given,
-		time: time
+		given: null,
+		time: null
 	}
 
 	OP.results["latest"] = OP.results[round]
 	return true
 }
 
-OP.setMemory = (round, given, time) =>
+OP.setRoundMemory = (round, given, time) =>
 {
-	/* CHECKS BEFORE ACTION
-		* ROUND exists
-		* GIVEN and TIME are defined
-
-		RETURNS: FALSE or TRUE
-	*/	
+	// FUNCTION: Register the information on the round
+	// CHECKING: Round has been registred, informations are valid
 
 	if (!(round in OP.results)) {return false}
 	if (!(new RegExp("[0-9]+").test(given)) || !time) {return false}
 
 	OP.results[round].given = given
-	OP.results[round].time  = time
+	OP.results[round].time = time
+
+	return true
+}
+
+OP.clearMemory = () =>
+{
+	// FUNCTION: Removes all the previous informations
+	// CHECKING: [Game hasn't started]
+
+	if (Game.hasStarted()) {return false}
+	OP.results = {}
 
 	return true
 }

@@ -1,79 +1,66 @@
-// ISN Project / PLAYER MECHANICS 
-// VERSION 1.00, latest updated: 
+// ISN Project / PLAYER SYSTEM 
+// VERSION 1.01, latest updated: 25/03/2017
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
 var Player = {}
-Player.status = 
-{
-	lives: 0, 
-	combo: 0,
-	errors: 0,
-	success: 0	
-}
 
-// FUNCTION: addLife(), ADD ONE LIFE
-Player._addLife = () =>
+Player.status =
 {
-	/* CHECKS BEFORE ACTIONS
-		* THE GAME HAS STARTED
-		* THE PLAYER IS STILL ALIVE
-
-		RETURNS: Lives remaining
+	/* IN-GAME INFORMATIONS & COUNTERS
+	* lives: how many lives the player has left
+	* combo: how many good answeres the player
+	* errors: how many total errors the player made
+	* success: how many good answeres the player made
 	*/
 
-	if ((Game.hasStarted()) && (Player.isAlive())) {Player.status.lives++}
-	return Player.status.lives
+	lives: 0,
+	combo: null,
+	errors: null,
+	success: null
 }
 
-// FUNCTION: takeLife(), TAKE ONE LIFE
-Player._takeLife = () =>
+Player.addLife = () =>
 {
-	/* CHECKS BEFORE ACTIONS
-		* THE GAME HAS STARTED
-		* THE PLAYER IS STILL ALIVE
+	// FUNCTION: Adds a life to the player
+	// CHECKING: [Game has started]
 
-		RETURNS: Lives remaining
-	*/
+	if (!Game.hasStarted()) {return false}
+	Player.status.lives++
 
-	if ((Game.hasStarted()) && (Player.isAlive())) {Player.status.lives--}
-	return Player.status.lives
+	return true
 }
 
-// FUNCTION: _setLife(lives)
-Player._setLives = (lives) => 
+Player.takeLife = () =>
 {
-	/* CHECKS BEFORE ACTIONS
-		* NONE
+	// FUNCTION: Removes a life to the player
+	// CHECKING: [Game has started]
 
-		RETURNS: true
-	*/
+	if (!Game.hasStarted()) {return false}
+	Player.status.lives--
+
+	return true
+}
+
+Player.setLives = (lives) =>
+{
+	// FUNCTION: Force the lives of the player
+	// CHECKING: [Game has started]
 
 	Player.status.lives = lives
+
 	return true
-
 }
 
-// FUNCTION: getPlayerLives(), RETRUN THE LIVES OF THE PLAYER
-Player.getPlayerLives = () =>
+Player.getLives = () =>
 {
-	/* CHECKS BEFORE ACTIONS
-		* THE GAME HAS STARTED
+	// FUNCTION: Returns how many lives the player has
 
-		RETURNS: Lives remaining or FALSE
-	*/
-	if (Game.hasStarted()) {return Player.status.lives}
-	return false
+	return Player.status.lives
 }
 
-// FUNCTION: isPlayerAlive(), RETURNS TRUE OR FALSE
 Player.isAlive = () =>
 {
-	/* CHECKS BEFORE ACTIONS
-		* THE GAME HAS STARTED
+	// FUNCTION: Returns wheather or not the player is alive
 
-		RETURNS: TRUE or FALSE
-	*/
-
-	if ((Game.hasStarted()) && (Player.getPlayerLives() > 0)) {return true}
-	return false
+	return Player.status.lives? true : false
 }

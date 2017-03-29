@@ -1,122 +1,143 @@
-// ISN Project / GAME MECHANICS 
-// VERSION 1.00, latest updated: 
+// ISN Project / GAMING SYSTEM 
+// VERSION 1.01, latest updated: 25/03/2017
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
 var Game = {}
-Game.settings =
+
+Game.settings = 
 {
-	/* IN GAME SETTINGS
-	* lives: how many lives the player starts with
-	* difficulty: 
-		* 1 ->
-		* 2 ->
-		* 3 ->
+	/* IN-GAME SETTINGS
+	* lives: how many lives the player starts a new game with
+	* operations: what operations are allowed to be generated
 	*/
 
 	lives: 3,
-	difficulty: 2,
 	operations: ["+", "-", "x", "/"]
 }
 
 Game.status = 
 {
 	/* IN-GAME INFORMATIONS & COUNTERS
-	* hasStarted:
-	* round: how many questions have been asked?
-	* baseTimer: 
-	* currentTimer: how many ms left before the end of the question?
-
-	* lives: how many lives left?
-	* combo: how many good answeres in a row?
-	* success: how many good answeres in total?
-	* errors: how many bad answeres in total?
+	* round: tracks down the current round number
+	* timeLeft: time, in milliseconds, before the end of the current round
+	* timeNext: time, in milliseconds, for the next round
+	* hasStarted: wheater or not the game has started
 	*/
 
-	hasStarted: false,
-	currentTimer: 0,
-	baseTimer: 5,
-	round: 0
+	round: 0,
+	timeLeft: null,
+	timeNext: 60,
+	hasStarted: false
 }
 
-
-// FUNCTION: hasStarted()
-Game.hasStarted = () => 
+Game.hasStarted = () =>
 {
-	/* CHECKS BEFORE ACTION
-		* NONE
-
-		RETURNS: Game.status.hasStarted
-	*/
+	// FUNCTION: Return wheater or not the game has started
 
 	return Game.status.hasStarted
 }
 
-// FUNCTION: newRound()
-Game.newRound = () =>
-{
-	/* CHECKS BEFORE ACTION
-		* THE GAME HAS STARTED
-		* THE PLAY IS STILL ALIVE
-
-		RETURNS: Game.status.round
-	*/
-
-	UI.setLifeDisplay()
-	if (Game.hasStarted() && Player.isAlive()) 
-	{
-		Game.status.round++
-
-		OP.generateNewOperation(Game.settings.operations[Math.ceil(Math.random() * (4) -1)])
-		UI.startTimer()
-
-	}
-	return Game.getCurrentRound()
-}
-
-// FUNCTION: getCurrentRound()
 Game.getCurrentRound = () =>
 {
-	/* CHECKS BEFORE ACTION
-		* NONE
-
-		RETURNS : Game.status.round
-	*/
+	// FUNCTION: Returns the current round number
 
 	return Game.status.round
 }
 
-// FUNCTION: roundLost()
-Game._roundLost = () =>
+Game.generateNewRound = () =>
 {
-	Player._takeLife()
-	setTimeout(() => {Game.newRound()}, 1000)
+	// FUNCTION: Generate a new round 
+	// INTERACT: [PLAYER, UI, OPERATION]
+	// CHECKING: [Game has started, Player is alive]
+
+	if (!Game.hasStarted()) {return false}
+	if (!Player.isAlive())  {Game.stop(); return false}
+	Game.status.round++
+
+	setTimeout(() =>
+	{
+		OP.generateNewOperation(Game.settings.operations[Math.ceil(Math.random() * (4) -1)])
+		UI.setOperationDisplay()
+		UI.setHealthDisplay()
+		UI.startTimer()		
+	}, 500)
+
+	return true
 }
 
-// FUNCTION: startGame()
-Game.startGame = () =>
+Game.winRound = () =>
 {
-	/* CHECKS BEFORE ACTION
-		* THE GAME HAS STARTED
+	// FUNCTION: The player has win this round, regenerate a new one
+	// INTERACT: [PLAYER, UI, OPERATION]
+	// CHECKING: [Game has started]
 
-		RETURNS: true or false
-	*/
+	if (!Game.hasStarted()) {return false}
+
+	UI.setStatusDisplay("success")
+	OP.setRoundMemory(Game.getCurrentRound(), $("input").val(), Game.status.timeLeft)
+
+	Game.generateNewRound()
+	return true
+}
+
+Game.lostRound = () =>
+{
+	// FUNCTION: The player has lost this round, regenerate a new one
+	// INTERACT: [PLAYER, UI, OPERATION]
+	// CHECKING: [Game has started]
+
+	if (!Game.hasStarted()) {return false}
+	Player.takeLife()
+
+	UI.setStatusDisplay("error")
+	OP.setRoundMemory(Game.getCurrentRound(), $("input").val(), Game.status.timeLeft)
+
+	Game.generateNewRound()
+
+	return true
+}
+
+Game.start = () =>
+{
+	// FUNCTION: Starts the game
+	// INTERACT: [PLAYER]
 
 	if (Game.hasStarted()) {return false}
 	
 	Game.status.hasStarted = true
-	Player._setLives(Game.settings.lives)
-	Game.newRound()
+	
+	Player.setLives(Game.settings.lives)
+	Game.generateNewRound()
+	
+	return true
 }
 
-// FUNCTION: stopGame()
-Game.stopGame = () =>
+Game.stop = () =>
 {
-	/* CHECKS BEFORE ACTION
-		* THE GAME HAS STARTED
-
-		RETURNS: 
-	*/
-
+	// FUNCTION: Stops the game and resets the game status
+	// INTERACT: [UI, OPERATIONS]
+	
 	if (!Game.hasStarted()) {return false}
 	Game.status.hasStarted = false
+	Game.status.timeLeft   = null
+	Game.status.timeNext   = 5
+	Game.status.round      = null
+
+	OP.clearMemory()
+	UI.setHealthDisplay()
+	UI.resetTimer()
+
+	return true
+}
+
+Game.checkValue = () =>
+{
+	// FUNCTION: Checks if value is correct
+	// CHECKING: [Game has started]
+	// INTERACT: [UI, OPERATION]
+
+	if (!Game.hasStarted()) {return false}
+
+	if ($(".input").val() == OP.results.latest.expected) {return true}
+	return false
 }

@@ -8,13 +8,8 @@ require.config(
 	paths:
 	{
 		jquery:   'lib/jquery-3.1.1',
-		jqueryui: 'lib/jquery-ui'
+		// jqueryui: 'lib/jquery-ui'
 	}
 })
 
-require(
-	["jquery", "jqueryui", "Game/Events", "Game/Game", "Game/Player", "Game/Operations", "UI/Ui"], ($, events, game, ui) => 
-	{
-		Events.loadEvents()
-	}
-)
+require(["jquery", "game/game", "game/player", "game/operations", "game/ui", "game/events"], () => {Events.loadEvents()})
