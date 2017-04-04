@@ -27,6 +27,8 @@ Player.addLife = () =>
 	if (!Game.hasStarted()) {return false}
 	Player.status.lives++
 
+	console.log("------------------- LIFE++ ")
+
 	return true
 }
 

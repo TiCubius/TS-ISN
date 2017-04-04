@@ -20,13 +20,13 @@ UI.setStatusDisplay = (status) =>
 	{
 		// CHANGES BORDER COLOR TO RED, REMOVES IT AFTER 2500ms
 		$(".input").val("").addClass("error")
-		setTimeout(() => {$(".error").removeClass("error")}, 2500)
+		setTimeout(() => {$(".error").removeClass("error")}, 500)
 	}
 	if (status === "success")
 	{
 		// CHANGES BORDER COLOR TO RED, REMOVES IT AFTER 2500ms
 		$(".input").val("").addClass("success")
-		setTimeout(() => {$(".success").removeClass("success")}, 2500)
+		setTimeout(() => {$(".success").removeClass("success")}, 500)
 	}
 
 	return true
@@ -100,6 +100,7 @@ UI.startTimer = () =>
 
 			clearInterval(UI.status.timerInterval)
 			UI.status.timerInterval = null
+
 		}
 	}, 250)
 

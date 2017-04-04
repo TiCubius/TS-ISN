@@ -12,4 +12,4 @@ require.config(
 	}
 })
 
-require(["jquery", "game/game", "game/player", "game/operations", "game/ui", "game/events"], () => {Events.loadEvents()})
+require(["jquery", "game/game", "game/player", "game/operations", "game/ui", "game/events"], () => {Events.loadEvents();})

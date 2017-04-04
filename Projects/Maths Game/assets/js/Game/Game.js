@@ -4,14 +4,29 @@
 
 var Game = {}
 
+
+/*var i = 0
+var lives = 0
+interval = setInterval(() => 
+{ 
+	var test = Math.random() < Game.settings.chance ? true : false
+	i++
+	if (test) {Player.addLife(); console.log(i + ": " + lives)}
+}, 1)
+*/
+
 Game.settings = 
 {
 	/* IN-GAME SETTINGS
 	* lives: how many lives the player starts a new game with
+	* chance: probability of winning a life
+	* difficulty: changes base lives, chance, and timer
 	* operations: what operations are allowed to be generated
 	*/
 
 	lives: 3,
+	chance: .1,
+	difficulty: 1/20,
 	operations: ["+", "-", "x", "/"]
 }
 
@@ -26,8 +41,37 @@ Game.status =
 
 	round: 0,
 	timeLeft: null,
-	timeNext: 60,
+	timeNext: 5,
 	hasStarted: false
+}
+
+Game.setDifficulty = (difficulty) =>
+{
+	Game.settings.difficulty = difficulty
+	if (difficulty == "easy")
+	{
+		Game.settings.lives = 3
+		Game.settings.chance = 1/5
+		Game.status.timeNext = 20
+	}
+	if (difficulty == "normal")
+	{
+		Game.settings.lives = 2
+		Game.settings.chance = 1/20
+		Game.status.timeNext = 15
+	}
+	if (difficulty == "hard")
+	{
+		Game.settings.lives = 1
+		Game.settings.chance = 1/100
+		Game.status.timeNext = 10
+	}
+	if (difficulty == "ultra")
+	{
+		Game.settings.lives = 1
+		Game.settings.chance = 1/500
+		Game.status.timeNext = 5
+	}
 }
 
 Game.hasStarted = () =>
@@ -72,8 +116,10 @@ Game.winRound = () =>
 	// CHECKING: [Game has started]
 
 	if (!Game.hasStarted()) {return false}
+	Math.random() < Game.settings.chance ? Player.addLife() : ""
 
 	UI.setStatusDisplay("success")
+	UI.resetTimer()
 	OP.setRoundMemory(Game.getCurrentRound(), $("input").val(), Game.status.timeLeft)
 
 	Game.generateNewRound()
@@ -137,7 +183,10 @@ Game.checkValue = () =>
 	// INTERACT: [UI, OPERATION]
 
 	if (!Game.hasStarted()) {return false}
-
-	if ($(".input").val() == OP.results.latest.expected) {return true}
+	if ($(".input").val() == OP.results.latest.expected) 
+	{
+		Game.winRound()
+		return true
+	}
 	return false
 }
