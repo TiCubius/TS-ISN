@@ -25,9 +25,8 @@ Player.addLife = () =>
 	// CHECKING: [Game has started]
 
 	if (!Game.hasStarted()) {return false}
+	if (Game.debug()) {console.log("PLAYER has been granted a life !")}
 	Player.status.lives++
-
-	console.log("------------------- LIFE++ ")
 
 	return true
 }
@@ -47,7 +46,6 @@ Player.setLives = (lives) =>
 {
 	// FUNCTION: Force the lives of the player
 	// CHECKING: [Game has started]
-
 	Player.status.lives = lives
 
 	return true
@@ -56,13 +54,11 @@ Player.setLives = (lives) =>
 Player.getLives = () =>
 {
 	// FUNCTION: Returns how many lives the player has
-
 	return Player.status.lives
 }
 
 Player.isAlive = () =>
 {
 	// FUNCTION: Returns wheather or not the player is alive
-
 	return Player.status.lives? true : false
 }

@@ -14,7 +14,18 @@ Events.loadEvents = () =>
 	// FUNCTION: Loads all the events
 	// INTERACT: [GAME]
 	$(".input").focus(() => {Game.start()})
-	$(".input").on("keyup", (event) => {console.log(event.type + ": " + event.key); console.log(Game.checkValue())})
+	$(".input").on("keyup", (event) => 
+	{
+		if (Game.debug())
+		{
+			console.log(event.type + ": " + event.key)
+			console.log(Game.checkValue())
+		}
+		else
+		{
+			Game.checkValue()
+		}
+	})
 
 	$(document).on("keydown", (event) =>
 	{

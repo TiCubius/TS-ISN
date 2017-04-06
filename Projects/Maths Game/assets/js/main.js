@@ -8,8 +8,9 @@ require.config(
 	paths:
 	{
 		jquery:   'lib/jquery-3.1.1',
+		chartjs:  'lib/Chart',
 		// jqueryui: 'lib/jquery-ui'
 	}
 })
 
-require(["jquery", "game/game", "game/player", "game/operations", "game/ui", "game/events"], () => {Events.loadEvents();})
+require(["jquery", "chartjs", "game/game", "game/player", "game/operations", "game/ui", "game/events"], () => {Events.loadEvents();})

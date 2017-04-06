@@ -15,9 +15,9 @@ OP.generateNewOperation = (operation) =>
 	if (!Game.hasStarted()) {return false}
 	if (Game.settings.operations.indexOf(operation) == "-1") {return false}
 
-	let currentRound = Game.getCurrentRound()
-	let integer_1 = Math.ceil(Math.random() * (10 - 1) + 1)
-	let integer_2 = Math.ceil(Math.random() * (10 - 1) + 1)
+	currentRound = Game.getCurrentRound()
+	integer_1 = Math.ceil(Math.random() * (10 - 1) + 1)
+	integer_2 = Math.ceil(Math.random() * (10 - 1) + 1)
 
 	if (operation === "+") {hasMemoryGenerated = OP.generateMemory(currentRound, integer_1, integer_2, operation, integer_1 + integer_2)}
 	if (operation === "-") {hasMemoryGenerated = OP.generateMemory(currentRound, integer_1, integer_2, operation, integer_1 - integer_2)}
@@ -26,7 +26,7 @@ OP.generateNewOperation = (operation) =>
 
 	if (!hasMemoryGenerated) {return false}
 
-	console.log("expected: " + OP.results.latest.expected)
+	if (Game.debug()) {console.log("expected: " + OP.results.latest.expected)}
 	return true
 }
 
@@ -55,8 +55,12 @@ OP.setRoundMemory = (round, given, time) =>
 	// FUNCTION: Register the information on the round
 	// CHECKING: Round has been registred, informations are valid
 
+	console.log("ROUND MEMORY SET")
+	console.log("round:", round in OP.results)
+	console.log("regex:", new RegExp("[0-9]+").test(given))
+
 	if (!(round in OP.results)) {return false}
-	if (!(new RegExp("[0-9]+").test(given)) || !time) {return false}
+	if ((given && !(new RegExp("[0-9]+").test(given))) || !time) {return false}
 
 	OP.results[round].given = given
 	OP.results[round].time = time

@@ -4,29 +4,20 @@
 
 var Game = {}
 
-
-/*var i = 0
-var lives = 0
-interval = setInterval(() => 
-{ 
-	var test = Math.random() < Game.settings.chance ? true : false
-	i++
-	if (test) {Player.addLife(); console.log(i + ": " + lives)}
-}, 1)
-*/
-
 Game.settings = 
 {
 	/* IN-GAME SETTINGS
+	* debug: 
 	* lives: how many lives the player starts a new game with
 	* chance: probability of winning a life
 	* difficulty: changes base lives, chance, and timer
 	* operations: what operations are allowed to be generated
 	*/
 
+	debug: true,
 	lives: 3,
-	chance: .1,
-	difficulty: 1/20,
+	chance: null,
+	difficulty: null,
 	operations: ["+", "-", "x", "/"]
 }
 
@@ -47,6 +38,7 @@ Game.status =
 
 Game.setDifficulty = (difficulty) =>
 {
+	// FUNCTION: Changes the time, and chance
 	Game.settings.difficulty = difficulty
 	if (difficulty == "easy")
 	{
@@ -74,17 +66,21 @@ Game.setDifficulty = (difficulty) =>
 	}
 }
 
+Game.debug = () =>
+{
+	// FUNCTION: Return wheater or not we console.log()
+	return Game.settings.debug
+}
+
 Game.hasStarted = () =>
 {
 	// FUNCTION: Return wheater or not the game has started
-
 	return Game.status.hasStarted
 }
 
 Game.getCurrentRound = () =>
 {
 	// FUNCTION: Returns the current round number
-
 	return Game.status.round
 }
 
@@ -118,9 +114,9 @@ Game.winRound = () =>
 	if (!Game.hasStarted()) {return false}
 	Math.random() < Game.settings.chance ? Player.addLife() : ""
 
-	UI.setStatusDisplay("success")
-	UI.resetTimer()
 	OP.setRoundMemory(Game.getCurrentRound(), $("input").val(), Game.status.timeLeft)
+	UI.resetTimer()
+	UI.setStatusDisplay("success")
 
 	Game.generateNewRound()
 	return true
@@ -135,8 +131,8 @@ Game.lostRound = () =>
 	if (!Game.hasStarted()) {return false}
 	Player.takeLife()
 
-	UI.setStatusDisplay("error")
 	OP.setRoundMemory(Game.getCurrentRound(), $("input").val(), Game.status.timeLeft)
+	UI.setStatusDisplay("error")
 
 	Game.generateNewRound()
 
@@ -149,6 +145,7 @@ Game.start = () =>
 	// INTERACT: [PLAYER]
 
 	if (Game.hasStarted()) {return false}
+	if (!Game.settings.difficulty) {Game.setDifficulty("normal")}
 	
 	Game.status.hasStarted = true
 	
@@ -188,5 +185,6 @@ Game.checkValue = () =>
 		Game.winRound()
 		return true
 	}
+
 	return false
 }
