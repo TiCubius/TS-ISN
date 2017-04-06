@@ -12,3 +12,5 @@ html, body        {margin: 0; padding: 0; background: #fff;}
 .game .input      {width: 300px; height: 38px; padding: 0 15px; margin: 15px; outline: none; border: 1px solid #b7b7b7; border-radius: 5px; outline: none;}
 .game .error      {border: 1px solid lightcoral;}
 .game .success 	  {border: 1px solid lightgreen;}
+
+.dropdown		  {margin: 0.3% auto; display: block; text-align: center; color: #999999; width: 100px; height: 38px; padding: 0 15px; outline: none; border: 1px solid #999999; outline: none; border-radius: 10px}
