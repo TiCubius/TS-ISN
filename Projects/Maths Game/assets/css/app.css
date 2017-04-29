@@ -1,16 +1,54 @@
-*                 {font-family: "Roboto"}
-html, body        {margin: 0; padding: 0; background: #fff;}
+/*
+// ISN Project / USER INTERFACE  
+// VERSION 2.00, latest updated: 15/04/2017
+// TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
+*/
 
-.header           {display: block; text-align: center; border-bottom: 1px solid #b7b7b7;}
-.header .timer    {width: 100%; height: 5px; background: #ffa400;}
-.header .hearts   {color: #ff0d00; margin: 20px 0;}
-.header .last     {color: #c50a00;}
-.header .broken   {color: #151414;}
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
 
-.game             {margin-top: 5%; text-align: center;}
-.game .separation {color: #C7C7C7; font-size: 32px; margin: 0;}
-.game .input      {width: 300px; height: 38px; padding: 0 15px; margin: 15px; outline: none; border: 1px solid #b7b7b7; border-radius: 5px; outline: none;}
-.game .error      {border: 1px solid lightcoral;}
-.game .success 	  {border: 1px solid lightgreen;}
+*                                    {font-family: "Roboto"; transition: .2s; overflow: hidden;}
+html, body                           {margin: 0; padding: 0; background: #1a1a1a;}
 
-.dropdown		  {margin: 0.3% auto; display: block; text-align: center; color: #999999; width: 100px; height: 38px; padding: 0 15px; outline: none; border: 1px solid #999999; outline: none; border-radius: 10px}
+.hidden                              {opacity: 0;}
+.delete                              {display: none;}
+.title                               {color: #FF6700; font-size: 32px; text-transform: uppercase; margin: 0;}
+.text                                {color: #FFF; font-size: 18px; margin: 50px 0;}
+
+.welcome, .game                      {position: absolute; left: 50%; top: 50%; transform: Translate(-50%, -50%); text-align: center;}
+
+.welcome .difficulty                 {cursor: pointer; width: 100%; height: 50px; border: 2px solid #ff6700; background: transparent; text-align: center; color: #FFF; text-align-last: center; -webkit-appearance: none;}
+.welcome .difficulty option          {color: black; background: white; padding: 10px 0;}
+.welcome .difficulty option:disabled {background: black; color: white;}
+.welcome .start, .results .return    {background: transparent; float: right; margin-top: 20px; width: 150px; height: 50px; border: 2px solid #ff6700; text-align: center; color: #FFF;}
+.welcome .start:hover                {background: #FFF; color: #ff6700;}
+
+.game .animate-text                  {animation: flash-text 1s infinite;}
+.game .animate-input                 {animation: flash-input 1s infinite;}
+.game .input                         {width: 300px; height: 50px; margin-top: 15px; border: 1px solid #FF6700; background: transparent; color: #FFF; padding: 0 50px; outline: none;}
+.game .score                         {color: #FF6700; float: right; line-height: 50px; margin-left: 15px;}
+.game .hp                            {margin-top: 15px; color: #FF6700;}
+
+.results                             {position: absolute; left: 50%; top: 50%; transform: Translate(-50%, -50%); width: 50%; height: 50%;	}
+.results div                         {width: 100%; height: 100%; }
+
+.timer                               {background: red; opacity: .1; position: absolute; height: 0%; width: 100%;} 
+
+
+@keyframes flash-input
+{
+	000% { border: 1px solid #FF6700}
+	050% { border: 1px solid red}
+	100% { border: 1px solid #FF6700}
+}
+
+@keyframes flash-text
+{
+	000% { color:#FF6700}
+	050% { color:red}
+	100% { color:#FF6700}
+}

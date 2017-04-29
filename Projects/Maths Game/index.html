@@ -5,29 +5,43 @@
 	<meta charset="UTF-8">
 	<link rel="stylesheet" type="text/css" href="assets/css/app.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/font-awesome.css">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
 </head>
 <body>
 
-	<section class="header">
-		<div class="timer"></div>
-		<div class="hearts">
-		</div>
-	</section class="header">
+	<div class="timer"></div>
 
-	<section class="game">
-		<h1 class="equation">Challenge: Mutliplications</h2>
-		<h3 class="separation">=</h2>
+	<div class="welcome">
+		<h2 class="title">Bienvenue</h2>
+		<p class="text">
+			Avant de pouvoir jouer, vous devez sélectionner un mode de difficulté. <br /> 
+			Celui-ci changera plusieurs paramètres du jeu, tels que le temps limite par question, le nombre de vie de départ ou encore la chance d'obtenir une nouvelle vie lors de bonnes réponses. <br /><br />
+			Sachez également que chaque tour est généré aléatoirement.
+		</p>
+
+		<select class="difficulty">
+			<option disabled selected>Choisisez une difficulté</option>
+			<option value="easy">Facile</option>
+			<option value="normal">Normal</option>
+			<option value="hard">Difficile</option>
+		</select>
+		<button class="start">Lancer une partie !</button>
+	</div>
+
+	<div class="game hidden delete">
+		<h2 class="title equation">Ready?</h2>
 		<input class="input" type="text" placeholder="Solution">
-	</section>
+		<p class="score"><i class="fa fa-trophy" aria-hidden="true"> 0</i></p>
+		<div class="hp"></div>
+	</div>
 
-	<select class="dropdown">
-		<option value="Easy">Facile</option>
-		<option value="Normal">Normal</option>
-		<option value="Hard">Difficile</option>
-		<option value="Ultra">Ultra</option>
-	</select>
-	
+	<audio class="music_base" preload loop>
+		<source src="assets/music/music_base.wav" type="audio/wav">
+	</audio>
+
+	<audio class="music_stress" preload loop>
+		<source src="assets/music/music_stress.wav" type="audio/wav">
+	</audio>
+
 	<script type="text/javascript" src="assets/js/lib/require.js"></script>
 	<script type="text/javascript" src="assets/js/main.js"></script>
 </body>

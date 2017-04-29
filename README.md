@@ -14,5 +14,11 @@ I don't know why you'd want to, but sure.
 As long as you credit me *(sort of)* or tell me what you're using it for :)
 
 ## Projects
-- [ ] 21/03/2017 - Mathematic Game, HTML/CSS/JS
+- [ ] 30/04/2017 - Mathematic Game, HTML/CSS/JS
 - [x] 12/01/2017 - Pascal's triangle
+
+## SCREENSHOTS
+### Maths Game:WELCOME
+![screen](https://lut.im/6uoyV0VC45/wMbZleGX6EwHWmLI.png)
+### Maths Game:GAME
+![screen](https://lut.im/mAClkN9e4g/U0FsvteynTCLGKnh.png)

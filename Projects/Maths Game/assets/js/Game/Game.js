@@ -1,174 +1,147 @@
-// ISN Project / GAMING SYSTEM 
-// VERSION 1.01, latest updated: 25/03/2017
+// ISN Project / GAME SYSTEM 
+// VERSION 2.01, latest updated: 30/04/2017
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
-var Game = {}
+var Game    = {}
+Game.debug  = false
+Game.status = {}
 
-Game.settings = 
+Game.setDifficulty = () =>
 {
-	/* IN-GAME SETTINGS
-	* debug: 
-	* lives: how many lives the player starts a new game with
-	* chance: probability of winning a life
-	* difficulty: changes base lives, chance, and timer
-	* operations: what operations are allowed to be generated
-	*/
+	// FUNCTION: Request the select's value & sets the difficulty.
+	difficulty = $(".difficulty").val()
+	if (Game.debug) {console.log("Game:setDifficulty() called; difficulty:", difficulty)}
+	
+	Game.status.difficulty = settings[difficulty]
 
-	debug: true,
-	lives: 3,
-	chance: null,
-	difficulty: null,
-	operations: ["+", "-", "x", "/"]
-}
-
-Game.status = 
-{
-	/* IN-GAME INFORMATIONS & COUNTERS
-	* round: tracks down the current round number
-	* timeLeft: time, in milliseconds, before the end of the current round
-	* timeNext: time, in milliseconds, for the next round
-	* hasStarted: wheater or not the game has started
-	*/
-
-	round: 0,
-	timeLeft: null,
-	timeNext: 5,
-	hasStarted: false
-}
-
-Game.setDifficulty = (difficulty) =>
-{
-	// FUNCTION: Changes the time, and chance
-	Game.settings.difficulty = difficulty
-	if (difficulty == "easy")
-	{
-		Game.settings.lives = 3
-		Game.settings.chance = 1/5
-		Game.status.timeNext = 20
-	}
-	if (difficulty == "normal")
-	{
-		Game.settings.lives = 2
-		Game.settings.chance = 1/20
-		Game.status.timeNext = 15
-	}
-	if (difficulty == "hard")
-	{
-		Game.settings.lives = 1
-		Game.settings.chance = 1/100
-		Game.status.timeNext = 10
-	}
-	if (difficulty == "ultra")
-	{
-		Game.settings.lives = 1
-		Game.settings.chance = 1/500
-		Game.status.timeNext = 5
-	}
-}
-
-Game.debug = () =>
-{
-	// FUNCTION: Return wheater or not we console.log()
-	return Game.settings.debug
+	return true
 }
 
 Game.hasStarted = () =>
 {
-	// FUNCTION: Return wheater or not the game has started
+	// FUNCTION: Request the select's value & sets the difficulty.
+	if (Game.debug) {console.log("Game:hasStarted() called; started:", Game.status.hasStarted)}
+
 	return Game.status.hasStarted
 }
 
 Game.getCurrentRound = () =>
 {
 	// FUNCTION: Returns the current round number
-	return Game.status.round
+	round = Game.status.round
+	if (Game.debug) {console.log("Game:getCurrentRound() called; round:", round)}
+
+	return round
 }
 
-Game.generateNewRound = () =>
+Game.focus = () =>
 {
-	// FUNCTION: Generate a new round 
-	// INTERACT: [PLAYER, UI, OPERATION]
-	// CHECKING: [Game has started, Player is alive]
+	// FUNCTION: autofocus the input
+	if (Game.debug) {console.log("Game:focus() called;")}
 
-	if (!Game.hasStarted()) {return false}
-	if (!Player.isAlive())  {Game.stop(); return false}
-	Game.status.round++
+	$(".input").focus()
 
-	setTimeout(() =>
+	return true
+}
+
+Game.start = () => 
+{
+	// FUNCTION: Sets the difficulty & lives, and start a new round
+	if (Game.debug) {console.log("Game:start() called;")}
+	if (Game.hasStarted()) {return false}
+
+	Game.status.round = 0
+	Game.status.hasStarted = true
+
+	Game.setDifficulty()
+	Player.setLives(Game.status.difficulty.lives)
+	UI.displayHealth()
+	Game.newRound()
+
+	return true
+}
+
+Game.stop = () =>
+{
+	// FUNCTION: Stops the round
+	if (Game.debug) {console.log("Game:stop() called;")}
+
+	$(".music").animate({volume: 0}, 1000)
+	Game.status.hasStarted = false
+
+	UI.audio()
+
+	UI.hideElement(".game", "slow", () =>
 	{
-		OP.generateNewOperation(Game.settings.operations[Math.ceil(Math.random() * (4) -1)])
-		UI.setOperationDisplay()
-		UI.setHealthDisplay()
-		UI.startTimer()		
-	}, 500)
+		UI.showElement(".welcome", "slow", () =>
+		{
+			OP.clearMemory()
+		})
+	})
+
+	return true
+}
+
+Game.newRound = () =>
+{
+	// FUNCTION: Starts a new round
+	if (Game.debug) {console.log("Game:newRound() called;")}
+
+	Game.status.round++
+	Game.status.isPaused = false
+
+	OP.generate()
+	UI.audio()
+	UI.clearInput()
+	UI.displayScore()
+	UI.displayHealth()
+	UI.displayOperation()
+	UI.startTimer(Game.status.difficulty.timer * 1000, () =>
+	{
+		Game.lostRound()
+	})
 
 	return true
 }
 
 Game.winRound = () =>
 {
-	// FUNCTION: The player has win this round, regenerate a new one
-	// INTERACT: [PLAYER, UI, OPERATION]
-	// CHECKING: [Game has started]
+	// FUNCTION: Called when the player has win a round
 
-	if (!Game.hasStarted()) {return false}
-	Math.random() < Game.settings.chance ? Player.addLife() : ""
+	if (!Game.status.isPaused)
+	{
+		Game.status.isPaused = true
+		chance = Math.random() 
+		added  = chance < Game.status.difficulty.chance ? Player.addLife() : false
+		if (Game.debug) {console.log("Game:winRound() called; add life:", added + "; value:", chance)}
 
-	OP.setRoundMemory(Game.getCurrentRound(), $("input").val(), Game.status.timeLeft)
-	UI.resetTimer()
-	UI.setStatusDisplay("success")
+		Player.addPoint()
+		OP.setRoundMemory(Game.getCurrentRound(), $(".input").val(), 1)
+		UI.resetTimer(() => Game.newRound())
+	}
+	else {console.log("------- WARNING: WIN ROUND WHILE PAUSED!")}
 
-	Game.generateNewRound()
 	return true
 }
 
 Game.lostRound = () =>
 {
-	// FUNCTION: The player has lost this round, regenerate a new one
-	// INTERACT: [PLAYER, UI, OPERATION]
-	// CHECKING: [Game has started]
+	// FUNCTION: Called when the player has lost a round
+	if (Game.debug) {console.log("Game:lostRound() called;")}
 
-	if (!Game.hasStarted()) {return false}
-	Player.takeLife()
+	if (!Game.status.isPaused)
+	{
+		Game.status.isPaused = true
+		Player.takeLife()
 
-	OP.setRoundMemory(Game.getCurrentRound(), $("input").val(), Game.status.timeLeft)
-	UI.setStatusDisplay("error")
-
-	Game.generateNewRound()
-
-	return true
-}
-
-Game.start = () =>
-{
-	// FUNCTION: Starts the game
-	// INTERACT: [PLAYER]
-
-	if (Game.hasStarted()) {return false}
-	if (!Game.settings.difficulty) {Game.setDifficulty("normal")}
-	
-	Game.status.hasStarted = true
-	
-	Player.setLives(Game.settings.lives)
-	Game.generateNewRound()
-	
-	return true
-}
-
-Game.stop = () =>
-{
-	// FUNCTION: Stops the game and resets the game status
-	// INTERACT: [UI, OPERATIONS]
-	
-	if (!Game.hasStarted()) {return false}
-	Game.status.hasStarted = false
-	Game.status.timeLeft   = null
-	Game.status.timeNext   = 5
-	Game.status.round      = null
-
-	OP.clearMemory()
-	UI.setHealthDisplay()
-	UI.resetTimer()
+		OP.setRoundMemory(Game.getCurrentRound(), $(".input").val(), 20)
+		if (Player.isAlive()) 
+		{
+			setTimeout(() => Game.newRound(), 1500)
+		}
+		else {Game.stop()}		
+	}
+	else {console.log("------- WARNING: LOST ROUND WHILE PAUSED!")}
 
 	return true
 }
@@ -176,15 +149,14 @@ Game.stop = () =>
 Game.checkValue = () =>
 {
 	// FUNCTION: Checks if value is correct
-	// CHECKING: [Game has started]
-	// INTERACT: [UI, OPERATION]
 
-	if (!Game.hasStarted()) {return false}
 	if ($(".input").val() == OP.results.latest.expected) 
 	{
+		if (Game.debug) {console.log("Game:checkValue() called; GOOD VALUE")}
 		Game.winRound()
 		return true
 	}
 
+	if (Game.debug) {console.log("Game:checkValue() called; WRONG VALUE")}
 	return false
 }

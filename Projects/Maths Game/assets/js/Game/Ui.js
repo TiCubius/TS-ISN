@@ -1,74 +1,74 @@
-// ISN Project / USER INTERFACE SYSTEM 
-// VERSION 1.01, latest updated: 25/03/2017
+// ISN Project / USER INTERFACE 
+// VERSION 2.01, latest updated: 30/04/2017
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
 var UI = {}
+UI.debug = false
 
-UI.status = 
+
+UI.hideElement = (element, time, callback) =>
 {
-	timerInterval: null
-}
+	// FUNCTION: Hides the element with JQUERY's fadeTo function & CSS.
+	if (UI.debug) {console.log("UI:hideElement() called; time: " + time + ", element: " + element + ", callback:",  callback)}
 
-UI.setStatusDisplay = (status) =>
-{
-	// FUNCTION: Warns the user about his actions
-	// CHECKING: [Game has started]
-	// INTERACT: [GAME]
-
-	if (!Game.hasStarted()) {return false}
-	if (status === "error")
+	$(element).fadeTo(time, 0, () =>
 	{
-		// CHANGES BORDER COLOR TO RED, REMOVES IT AFTER 2500ms
-		$(".input").val("").addClass("error")
-		setTimeout(() => {$(".error").removeClass("error")}, 500)
-	}
-	if (status === "success")
-	{
-		// CHANGES BORDER COLOR TO RED, REMOVES IT AFTER 2500ms
-		$(".input").val("").addClass("success")
-		setTimeout(() => {$(".success").removeClass("success")}, 500)
-	}
+		$(element).addClass("hidden delete")
+		if (callback) {callback()}
+	})
 
 	return true
 }
 
-UI.setHealthDisplay = () =>
+UI.showElement = (element, time, callback) =>
 {
-	// FUNCTION: Shows how many lives the user has
-	// CHECKING: [Game has started]
-	// INTERACT: [PLAYER, GAME]
+	// FUNCTION: Show the element with JQUERY's fadeTo function & CSS.
+	if (UI.debug) {console.log("UI:showElement() called; time: " + time + ", element: " + element + ", callback:",  callback)}
+
+	$(element).removeClass("hidden delete")
+	$(element).fadeTo(time, 1, () =>
+	{
+		if (callback) {callback()}
+	})
+	
+	return true
+}
+
+UI.startTimer = (time, callback) =>
+{
+	// FUNCTION: Animate a timer as a background
+	if (UI.debug) {console.log("UI:startTimer() called; time:", time + ", callback:", callback)}
+
+	$(".timer").animate({height: "100%"}, time, "linear", () =>
+	{
+		$(".timer").delay(700).animate({height: 0}, 300, "linear", () => {if (callback) {callback()}})
+	})
+
+	return true
+}
+
+UI.displayHealth = () => 
+{
+	// FUNCTION: Display the health as hearts
+	lives = Player.getLives()
+	if (UI.debug) {console.log("UI:displayHealth() called; displayed lives:", lives)}
 
 	$(".fa-heart").remove()
-	lives = Player.getLives()
+	$(".input").removeClass("animate-input")
+	for (var i = 0; i < lives; i++)
+	{
+		$(".hp").append('<i class="fa fa-heart"></i> \n')
+	}
 
-	if (lives === 0)
-	{
-		// PLAYER IS DEAD
-		$(".hearts").append('<i class="fa fa-heart broken"></i> \n')
-		$(".equation").text("Perdu !")
-	}
-	if (lives === 1)
-	{
-		// PLAYER IS CLOSE TO DEATH
-		$(".hearts").append('<i class="fa fa-heart last"></i> \n')		
-	}
-	if (lives > 1)
-	{
-		// LOOP: ADD 1 HEART/LIFE
-		for (var i = 0; i < lives; i++)
-		{
-			$(".hearts").append('<i class="fa fa-heart"></i> \n')
-		}
-	}
+	if (lives == 1) {$(".input").addClass("animate-input")}
 
 	return true
 }
 
-UI.setOperationDisplay = () =>
+UI.displayOperation = () =>
 {
-	// FUNCTION: Show the operation to the user
-	// CHECKING: [Game has Started, Operation has generated]
-	// INTERACT: [OPERATION]
+	// FUNCTION: Displays the operation to the user
+	if (UI.debug) {console.log("UI:displayOperation() called;")}
 
 	if (!Game.hasStarted() || !("latest" in OP.results)) {return false}
 	$(".equation").text(OP.results["latest"]["integer_1"] + " " + OP.results["latest"]["operation"] + " " + OP.results["latest"]["integer_2"])
@@ -76,81 +76,137 @@ UI.setOperationDisplay = () =>
 	return true
 }
 
-UI.startTimer = () =>
+UI.displayScore = () =>
 {
-	// FUNCTION: Shows the time left for the user
-	// CHECKING: [Game has started]
-	// INTERACT: [GAME]
+	// FUNCTION: Displays the score to the user
+	if (UI.debug) {console.log("UI:displayScore() called;")}
 
-	if (!Game.hasStarted()) {return false}
+	$(".fa-trophy").remove()
+	$(".score").append("<i class='fa fa-trophy' aria-hidden='true'> " + Player.getPoints() + "</i>")
+}
 
-	Game.status.timeLeft = Game.status.timeNext * 1000
-	$(".timer").animate({width: '0%'}, Game.status.timeLeft, "linear")
+UI.audio = () =>
+{
+	// FUNCTION: Plays the music
+	lives = Player.getLives()
+	if (UI.debug) {console.log("UI:audio() called; lives:", lives)}
 
-	// EVERY 250ms, REMOVES 250ms FROM THE TIMER
-	UI.status.timerInterval = setInterval(() =>
+	if (lives > 1)
 	{
-		Game.status.timeLeft -= 250
-		if (Game.status.timeLeft <= 0)
+		var music_base = $(".music_base")[0]
+		var music_stress = $(".music_stress")[0]
+
+		music_stress.currentTime = 0
+		$(".music_stress").animate({volume: 0}, 750, () =>
 		{
-			// TIMER <= 0, NO NEED TO CONTINUE...
-			
-			Game.lostRound()
-			$(".timer").animate({width: "100%"}, 500, "linear")
+			music_stress.pause()
+		})
 
-			clearInterval(UI.status.timerInterval)
-			UI.status.timerInterval = null
-
+		if (music_base.paused)
+		{
+			music_base.currentTime = 0
+			music_base.volume = 0
+			music_base.play()
+			$(".music_base").animate({volume: .5}, 750)
 		}
-	}, 250)
+	}
+
+	if (lives == 1)
+	{
+		var music_base = $(".music_base")[0]
+		var music_stress = $(".music_stress")[0]
+
+		music_base.currentTime = 0
+		$(".music_base").animate({volume: 0}, 750, () =>
+		{
+			music_base.pause()
+		})
+
+		if (music_stress.paused)
+		{
+			music_stress.currentTime = 0
+			music_stress.volume = 0
+			music_stress.play()
+			$(".music_stress").animate({volume: .5}, 750)
+		}
+	}
+
+	if (lives <= 0)
+	{
+		$(".music_base").animate({volume: 0}, 750)
+		$(".music_stress").animate({volume: 0}, 750, () =>
+		{
+			$(".music_base")[0].pause()
+			$(".music_stress")[0].pause()
+		})
+
+
+	}
 
 	return true
 }
 
-UI.resetTimer = () =>
+UI.clearInput = () =>
 {
-	// FUNCTION: Resets the timer
-	// CHECKING: [Timer has started]
+	// FUNCTION: Clear the input
+	if (UI.debug) {console.log("UI:clearInput() called")}
 
-	if (!UI.status.timerInterval) {return false}
+	$(".input").val("")
+
+	return true
+}
+ 
+UI.resetTimer = (callback) =>
+{
+	// FUNCTION: Stops the timer
+	if (UI.debug) {console.log("UI:resetTimer() called; callback:", callback)}
 
 	$(".timer").stop()
-	$(".timer").animate({width: "100%"}, 500, "linear")
-
-	clearInterval(UI.status.timerInterval)
-	UI.status.timerInterval = null
-
-	return true
+	$(".timer").animate({height: "0"}, 750, "linear", () =>
+	{
+		setTimeout(() => {if (callback) {callback()}}, 750)
+	})
 }
 
-var ctx = document.getElementById("myChart").getContext("2d");
+/*
+UI.generateResults = () =>
+{
+	// UI.hideElement(".welcome"); UI.showElement(".game"); UI.generateResults()
+	if (UI.debug) {console.log("UI:generateResults() called;")}
+	var rounds = Game.getCurrentRound()
 
-var data = {
-    labels: ["1", "2", "3", "4", "5", "6", "7", 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 45, 46, 47, 48, 49, 50],
-    datasets: [
-        {
-            label: "My First dataset",
-            fillColor: "rgba(220,220,220,0.2)",
-            strokeColor: "rgba(99, 3, 203, 0.9)",
-            pointColor: "rgba(220,220,220,1)",
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(220,220,220,1)",
-            data: [1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 5, 5, 6, 6, 7, 8, 8, 9, 9, 9, 10, 11, 12, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16, 17, 17, 17, 17, 17, 17, 18, 18, 18, 19, 19, 19, 20, 20, 20]
-        },
-        {
-            label: "My Second dataset",
-            fillColor: "rgba(151,187,205,0.2)",
-            strokeColor: "rgba(215, 40, 40, 0.9)",
-            pointColor: "rgba(151,187,205,1)",
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(151,187,205,1)",
-            data: [1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 5, 5, 6, 6, 7, 8, 8, 9, 9, 9, 10, 11, 12, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16, 17, 17, 17, 17, 17, 17, 18, 18, 18, 19, 19, 19, 20, 20, 20]
-        }
-    ]
-};
+	var data = 
+	{
+		labels: Array.apply(null, {length: rounds}).map(Number.call, Number),
+		datasets: 
+		[
+			{
+				label: "My First dataset",
+				fillColor: "rgba(220,220,220,0.2)",
+				strokeColor: "rgba(220,220,220,1)",
+				pointColor: "rgba(220,220,220,1)",
+				pointStrokeColor: "#fff",
+				pointHighlightFill: "#fff",
+				pointHighlightStroke: "rgba(220,220,220,1)",
+				data: OP.results.points
+			}
+		]
+	}
 
-setTimeout(() => {
-	var myLineChart = new Chart(ctx).Line(data, {});
-}, 200)
+	var options = 
+	{
+		maintainAspectRatio: true,
+		scaleOverride: false,
+		scaleSteps: 10,
+		scaleStepWidth: 10,
+		scaleStartValue: 0,
+		animation: true,
+
+		responsive: false
+	}
+
+	var ctx = $("#myChart")[0].getContext("2d")
+	var myNewChart = new Chart(ctx).Line(data, options)
+}
+
+*/
