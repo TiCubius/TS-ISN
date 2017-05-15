@@ -40,8 +40,13 @@ Events.listen = () =>
 		{
 			if (Events.status.konami_status == Events.status.konami.length)
 			{
+				Events.status.konami_status = 0
 				Game.start(true)
 			}
+		}
+		else
+		{
+			Events.status.konami_status = 0
 		}
 	})	
 

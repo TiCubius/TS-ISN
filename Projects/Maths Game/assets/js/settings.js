@@ -8,7 +8,7 @@ settings =
 		chance: 1/5,
 		timer: 10,
 		range: [1, 5],
-		operations: [3, 3]
+		operations: [0, 1]
 	},
 
 	normal:
