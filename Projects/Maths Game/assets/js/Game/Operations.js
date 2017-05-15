@@ -2,79 +2,92 @@
 // VERSION 2.01, latest updated: 30/04/2017
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
-var OP = {}
-OP.debug = false
+var OP     = {}
 OP.results = {}
+OP.debug   = true
 
-OP.generate = () => 
+
+/*
+***
+** GETTERS AND SETTERS
+***
+*/
+
+OP.getExpectedValue = () =>
 {
-	// FUNCTION: Generate a random operation
-	if (OP.debug) {console.log("OP:generate() called;")}
-
-	var currentRound = Game.getCurrentRound()
-	var integer_1    = OP.RNG(1, 10)
-	var integer_2    = OP.RNG(1, 10)
-	var operation    = settings.operations[OP.RNG(0, 3)]
-
-	if (operation === "+") {hasMemoryGenerated = OP.save(currentRound, integer_1,               integer_2, operation, integer_1 + integer_2)}
-	if (operation === "-") {hasMemoryGenerated = OP.save(currentRound, integer_1,               integer_2, operation, integer_1 - integer_2)}
-	if (operation === "x") {hasMemoryGenerated = OP.save(currentRound, integer_1,               integer_2, operation, integer_1 * integer_2)}
-	if (operation === "/") {hasMemoryGenerated = OP.save(currentRound, (integer_1 * integer_2), integer_2, operation, (integer_1 * integer_2) / integer_2)}
-
-	return hasMemoryGenerated
+	// FUNCTION: returns the correct answer
+	return OP.results.latest.expected
 }
+
+/*
+***
+** ACTUAL LOGIC
+***
+*/
 
 OP.RNG = (min, max) =>
 {
-	// FUNCTION: Generate a random number
-	if (OP.debug) {console.log("OP:RNG() called;")}
+	// FUNCTION: generates a random number between min and max
+	var generated = Math.round(Math.random() * (max - min) + min)
 
-	return Math.floor(Math.random() * (max - min + 1)) + min
+	if (OP.debug) {console.log("called OP:RNG(); {generated: " + generated + "}")}
+	return generated
+}
+
+OP.generate = () =>
+{
+	// FUNCTION: generates an operation and registers it in OP.results
+	var round      = Game.getCurrentRound()
+	var difficulty = Game.getDifficulty()
+
+	// SOMETHING AS ALREADY BEEN GENERATED FOR THIS ROUND
+	if ((round in OP.results))  {console.error("called OP:generate(); {round: " + round + ", generate: false}"); return false}
+
+	// RANDOM GENERATION
+	var integer_1 = OP.RNG(difficulty.range[0], difficulty.range[1])
+	var integer_2 = OP.RNG(difficulty.range[0], difficulty.range[1])
+	var operation = settings.operations[OP.RNG(difficulty.operations[0], difficulty.operations[1])]
+
+	// ASAP DEBUG
+	if (OP.debug) {console.log("called OP:generate(); {integer_1:" + integer_1 + ", operation:" + operation + ", integer_2:" + integer_2)}
+	
+	// SAVE IN OP.results, DIFFERENT DEPENDING ON THE OPERATION
+	if (operation === "+") {hasMemoryGenerated = OP.save(round, integer_1,               integer_2, operation, integer_1 + integer_2)}
+	if (operation === "-") {hasMemoryGenerated = OP.save(round, integer_1,               integer_2, operation, integer_1 - integer_2)}
+	if (operation === "x") {hasMemoryGenerated = OP.save(round, integer_1,               integer_2, operation, integer_1 * integer_2)}
+	if (operation === "/") {hasMemoryGenerated = OP.save(round, (integer_1 * integer_2), integer_2, operation, (integer_1 * integer_2) / integer_2)}
+
+	return hasMemoryGenerated?true:false	
 }
 
 OP.save = (round, integer_1, integer_2, operation, expected) =>
 {
-	// FUNCTION: Register the operation in a list
-	if (OP.debug) {console.log("OP:save() called; round:", round + "; ", integer_1, operation, integer_2, "=", expected)}
+	// FUNCTION: Register the operation in OP.results
 
+	// WE ALREADY HAVE AN OPERATION FOR THAT ROUND
 	if (round in OP.results) {return false}
-	if (!(OP.results.points)) {OP.results.points = []}
 
+	// SO WE HAVE A FULL LIST OF PREVIOUS OPERATIONS
 	OP.results[round] =
 	{
 		operation: operation,
 		integer_1: integer_1,
 		integer_2: integer_2,
-		expected: expected,
-		given: null,
-		time: null
+		expected: expected
 	}
 
-	OP.results["latest"] = OP.results[round]
+	// SO WE KNOW WHAT WAS THE LASTEST GENERATED
+	OP.results["latest"] = OP.results[round] 
+
+	if (OP.debug) {console.log("called OP:save(); round:", round + "; ", integer_1, operation, integer_2, "=", expected)}
 	return true
 }
 
-OP.setRoundMemory = (round, given, time) =>
+OP.clear = () =>
 {
-	// FUNCTION: Register the information on the round
-	if (OP.debug) {console.log("OP:setRoundMemory() called; round:", round + "; given:", given + "; time:", time)}
-
-	if (!(round in OP.results)) {return false}
-	if ((given && !(new RegExp("[0-9]+").test(given))) || !time) {return false}
-
-	OP.results.points.push(Player.getPoints())
-	OP.results[round].given = given
-	OP.results[round].time = time
-
-	return true
-}
-
-OP.clearMemory = () =>
-{
-	// FUNCTION: Delete all saved values
-	if (OP.debug) {console.log("OP:clearMemory() called;")}
-
+	// FUNCTION: clears OP.results
 	OP.results = {}
 
+	if (OP.debug) {console.log("called OP:clear();")}
 	return true
 }

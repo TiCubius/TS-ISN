@@ -1,162 +1,223 @@
-// ISN Project / GAME SYSTEM 
+// ISN Project / game system 
 // VERSION 2.01, latest updated: 30/04/2017
-// TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
+// TARTIERE kevin & arnaud louis, <ticubius@gmail.com>
 
 var Game    = {}
-Game.debug  = false
 Game.status = {}
+Game.debug  = false
 
-Game.setDifficulty = () =>
+/*
+***
+** GETTERS AND SETTERS
+***
+*/
+
+Game.getStatus = () =>
 {
-	// FUNCTION: Request the select's value & sets the difficulty.
-	difficulty = $(".difficulty").val()
-	if (Game.debug) {console.log("Game:setDifficulty() called; difficulty:", difficulty)}
-	
-	Game.status.difficulty = settings[difficulty]
-
-	return true
+	// FUNCTION: returns wheater or not the game has started
+	return Game.status.status || "stopped"
 }
 
-Game.hasStarted = () =>
+Game.getDifficulty = () =>
 {
-	// FUNCTION: Request the select's value & sets the difficulty.
-	if (Game.debug) {console.log("Game:hasStarted() called; started:", Game.status.hasStarted)}
+	// FUNCTION: returns the difficulty settings
+	return Game.status.difficulty
+}
 
-	return Game.status.hasStarted
+Game.getKonami = () =>
+{
+	// FUNCTION: returns wheater or not we are in konami mode
+	return Game.status.konami || false
 }
 
 Game.getCurrentRound = () =>
 {
-	// FUNCTION: Returns the current round number
-	round = Game.status.round
-	if (Game.debug) {console.log("Game:getCurrentRound() called; round:", round)}
-
-	return round
+	// FUNCTION: returns the current round number
+	return Game.status.round || 0
 }
 
-Game.focus = () =>
+Game.setKonami = (konami) =>
 {
-	// FUNCTION: autofocus the input
-	if (Game.debug) {console.log("Game:focus() called;")}
+	// FUNCTION: sets the konami's status
+	Game.status.konami = konami || false
+}
 
-	$(".input").focus()
+Game.setRound = (round) =>
+{
+	// FUNCTION: sets the current round
+	Game.status.round = round || 0
+}
 
+Game.setStatus = (status) =>
+{
+	// FUNCTION: sets the game's status
+	Game.status.status = status || "stopped"
+}
+
+Game.setDifficulty = () =>
+{
+	// FUNCTION: requests the select's value & sets the difficulty in a variable
+	var konami = Game.getKonami()
+	var difficulty = $(".difficulty").val() || "normal"
+	var status = Game.getStatus()
+
+	if (konami) {difficulty = "konami"}
+	Game.status.difficulty = settings[difficulty]
+
+	if (Game.debug) {console.log("called Game:setDifficulty(); {status:" + status + ", difficulty:" + difficulty + "}")}
 	return true
 }
 
-Game.start = () => 
+/*
+***
+** ACTUAL LOGIC
+***
+*/
+
+Game.start = (konami) =>
 {
-	// FUNCTION: Sets the difficulty & lives, and start a new round
-	if (Game.debug) {console.log("Game:start() called;")}
-	if (Game.hasStarted()) {return false}
+	// FUNCTION: setup the game
+	var status = Game.getStatus()
+	var konami = konami?true:false
+	
+	if (status != "running")
+	{
+		Game.setKonami(konami)
+		Game.setRound(0)
+		Game.setDifficulty()
 
-	Game.status.round = 0
-	Game.status.hasStarted = true
+		Player.setLives(Game.getDifficulty().lives)
 
-	Game.setDifficulty()
-	Player.setLives(Game.status.difficulty.lives)
-	UI.displayHealth()
-	Game.newRound()
+		UI.hideElement(".welcome", "slow", () =>
+		{
+			UI.showElement(".game", "slow")
+		})
 
-	return true
+		Game.setStatus("paused")
+		setTimeout(() => Game.newRound(), 600)
+	}
+
+	if (Game.debug) {console.log("called Game:start(); {status:" + status + ", konami:" + konami + "}")}
+	return status == "running"?false:true
 }
 
 Game.stop = () =>
 {
-	// FUNCTION: Stops the round
-	if (Game.debug) {console.log("Game:stop() called;")}
+	// FUINCTION: abort the game!
+	var status = Game.getStatus()
 
-	$(".music").animate({volume: 0}, 1000)
-	Game.status.hasStarted = false
-
-	UI.audio()
-
-	UI.hideElement(".game", "slow", () =>
+	if (status != "stopped")
 	{
-		UI.showElement(".welcome", "slow", () =>
+		UI.setAudio("stop")
+		UI.hideElement(".game", "slow", () =>
 		{
-			OP.clearMemory()
+			UI.showElement(".welcome", "slow", () => OP.clear())
 		})
-	})
+		Game.setStatus("stopped")
+	}
 
-	return true
+	if (Game.debug) {console.log("called Game:stop(); {status:" + status + "}")}
+	return status == "stopped"?false:true
 }
 
 Game.newRound = () =>
 {
-	// FUNCTION: Starts a new round
-	if (Game.debug) {console.log("Game:newRound() called;")}
+	// FUNCTION: setups the round
+	var round  = Game.getCurrentRound()
+	var status = Game.getStatus()
+	var lives  = Player.getLives()
+	var difficulty = Game.getDifficulty()
 
-	Game.status.round++
-	Game.status.isPaused = false
-
-	OP.generate()
-	UI.audio()
-	UI.clearInput()
-	UI.displayScore()
-	UI.displayHealth()
-	UI.displayOperation()
-	UI.startTimer(Game.status.difficulty.timer * 1000, () =>
+	if (status == "paused")
 	{
-		Game.lostRound()
-	})
+		Game.setStatus("running")
+		Game.setRound(round+1)
 
-	return true
+		OP.generate()
+
+		if (lives > 1) {UI.setAudio("calm")}
+		else {UI.setAudio("stress")}
+
+		UI.clearInput()
+		UI.displayScore()
+		UI.displayHealth()
+		UI.displayOperation()
+		UI.startTimer(difficulty.timer, () => {Game.lostRound()})
+
+		if (Game.getKonami())
+		{
+			switch(Math.round(Math.random() * 2)) {
+				case 0:
+					UI.konamiHideInput(difficulty.timer/5)
+					break;
+				case 1:
+					UI.konamiHideText()
+					break;
+				case 2:
+					UI.konamiHideTimer()
+					break;
+				default:
+					break;
+			}
+		}
+
+	}
+
+	if (Game.debug) {console.log("called Game:newRound(); {status:" + status + "}")}
+	return status == "paused"?true:false
 }
 
 Game.winRound = () =>
 {
-	// FUNCTION: Called when the player has win a round
+	// FUNCTION: the player gave the correct answere, he won that round
+	var status = Game.getStatus()
+	var points = Player.getPoints()
+	var lives  = Player.getLives()
 
-	if (!Game.status.isPaused)
+	if (status == "running")
 	{
-		Game.status.isPaused = true
-		chance = Math.random() 
-		added  = chance < Game.status.difficulty.chance ? Player.addLife() : false
-		if (Game.debug) {console.log("Game:winRound() called; add life:", added + "; value:", chance)}
+		Game.setStatus("paused")
 
-		Player.addPoint()
-		OP.setRoundMemory(Game.getCurrentRound(), $(".input").val(), 1)
-		UI.resetTimer(() => Game.newRound())
+		Player.setPoints(points+1)
+		if (Math.random() < Game.getDifficulty().chance){Player.setLives(lives+1)}
+		UI.resetTimer(() =>	Game.newRound())
 	}
-	else {console.log("------- WARNING: WIN ROUND WHILE PAUSED!")}
+	else {console.error("called Game:winRound() while status != 'running' ! {status:" + status + ", points:" + points + "}")}
 
-	return true
+	if (Game.debug) {console.log("called Game:winRound(); {status:" + status + "}")}
+	return status == "running"?true:false	
 }
 
 Game.lostRound = () =>
 {
-	// FUNCTION: Called when the player has lost a round
-	if (Game.debug) {console.log("Game:lostRound() called;")}
+	// FUNCTION: the player took too much time, he lost that round
+	var status = Game.getStatus()
+	var lives  = Player.getLives()
+	var deaths = Player.getDeaths()
 
-	if (!Game.status.isPaused)
+	if (status == "running")
 	{
-		Game.status.isPaused = true
-		Player.takeLife()
+		Game.setStatus("paused")
 
-		OP.setRoundMemory(Game.getCurrentRound(), $(".input").val(), 20)
-		if (Player.isAlive()) 
-		{
-			setTimeout(() => Game.newRound(), 1500)
-		}
-		else {Game.stop()}		
+		Player.setLives(lives-1)
+		Player.setDeaths(deaths+1)
+		UI.resetTimer()
+
+		if ((lives-1) > 0) {Game.newRound()}
+		else {Game.stop()}
 	}
-	else {console.log("------- WARNING: LOST ROUND WHILE PAUSED!")}
+	else if (Game.debug) {console.error("called Game:lostRound() while status != 'running' ! {status:" + status + "}")}
 
-	return true
+	if (Game.debug) {console.log("called Game:lostRound(); {status:" + status + "}")}
+	return status == "running"?true:false	
 }
 
 Game.checkValue = () =>
 {
-	// FUNCTION: Checks if value is correct
+	// FUNCTION: checks if the user's input is the correct answer
+	var value    = $(".input").val()
+	var expected = OP.getExpectedValue()
 
-	if ($(".input").val() == OP.results.latest.expected) 
-	{
-		if (Game.debug) {console.log("Game:checkValue() called; GOOD VALUE")}
-		Game.winRound()
-		return true
-	}
-
-	if (Game.debug) {console.log("Game:checkValue() called; WRONG VALUE")}
-	return false
+	if (value == expected) {Game.winRound()}
+	return value==expected?true:false
 }

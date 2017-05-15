@@ -3,64 +3,47 @@
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
 var Player    = {}
-Player.debug  = false
 Player.status = {}
+Player.debug  = true
 
-Player.isAlive = () =>
-{
-	// FUNCTION: Returns weather or not the player is alive
-	if (Player.debug) {console.log("Player:isAlive() called; lives:", Player.status.lives)}
-
-	return Player.status.lives > 0 ? true : false
-}
+/*
+***
+** GETTERS AND SETTERS
+***
+*/
 
 Player.getLives = () =>
 {
-	// FUNCTION: returns the lives
-	if (Player.debug) {console.log("Player:getLives() called; lives:", Player.status.lives)}
-
-	return Player.status.lives
-}
-
-Player.setLives = (lives) =>
-{
-	// FUNCTION: Forces the player to have X lives
-	if (Player.debug) {console.log("Player:setLives() called; lives:", lives)}
-
-	Player.status.points = 0
-	Player.status.lives = lives
-	return true
-}
-
-Player.addLife = () =>
-{
-	// FUNCTION: Can be called when the player has win a round
-	if (Player.debug) {console.log("Player:addLife() called; lives:", Player.status.lives)}
-
-	Player.status.lives++
-
-	return true
-}
-
-Player.takeLife = () =>
-{
-	// FUNCTION: Called when the player has lost a round
-	if (Player.debug) {console.log("Player:takeLife() called; lives:", Player.status.lives)}	
-
-	Player.status.lives--
-
-	return true
+	// FUNCTION: returns the player's lives
+	return Player.status.lives || 0
 }
 
 Player.getPoints = () =>
 {
-	return Player.status.points
+	// FUNCTION: returns the player's points (win rounds)
+	return Player.status.points || 0
 }
 
-Player.addPoint = () =>
+Player.getDeaths = () =>
 {
-	if (!Player.status.points) {Player.status.points = 0}
-	Player.status.points++
+	// FUNCTION: returns the player's deaths (lost rounds)
+	return Player.status.deaths || 0
+}
 
-	return true
+Player.setLives = (lives) =>
+{
+	// FUNCTION: sets the player's lives to the choosen value
+	return Player.status.lives = lives
+}
+
+Player.setPoints = (points) =>
+{
+	// FUNCTION: sets the player's points (win rounds) to the choosen value
+	return Player.status.points = points
+}
+
+Player.setDeaths = (deaths) =>
+{
+	// FUNCTION: sets the player's deaths (lost rounds) to the choosen value
+	return Player.status.deaths = deaths
 }

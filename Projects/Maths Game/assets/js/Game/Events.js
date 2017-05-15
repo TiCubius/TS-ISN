@@ -2,34 +2,48 @@
 // VERSION 2.01, latest updated: 30/04/2017
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
-var Events = {}
-Events.debug = false
+var Events   = {}
+Events.debug = true
+Events.status =
+{
+	konami_status: 0,
+	konami: [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]
+}
 
 Events.listen = () =>
 {
 	$(".start").on("click", () =>
 	{
-		// EVENT: Start Game button pressed
-		if (Events.debug) {console.log("Events:click(.start) called;")}
-		
+		// EVENT: start game button pressed
+		if (Events.debug) {console.log("called Events:click(\".start\");")}
+
 		if (!($(".difficulty").val())) {return false}
-		UI.hideElement(".welcome", "slow", () =>
-		{
-			UI.showElement(".game", "slow")
-			Game.start()
-		})
+		Game.start()
+
 	})
 
 	$(".return").on("click", () =>
 	{
-		// EVENT: Start Game button pressed
-		if (Events.debug) {console.log("Events:click(.start) called;")}
+		// EVENT: return to welcome screen button pressed
+		if (Events.debug) {console.log("called Events:click(\".return\");")}
 
 		UI.hideElement(".results", "slow", () =>
 		{
 			UI.showElement(".welcome", "slow")
 		})
+
 	})
+
+	$(document).on("keydown", (event) =>
+	{
+		if (event.keyCode === Events.status.konami[Events.status.konami_status++])
+		{
+			if (Events.status.konami_status == Events.status.konami.length)
+			{
+				Game.start(true)
+			}
+		}
+	})	
 
 	$(".input").on("keyup", (event) =>
 	{

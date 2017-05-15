@@ -2,211 +2,229 @@
 // VERSION 2.01, latest updated: 30/04/2017
 // TARTIERE Kevin & ARNAUD Louis, <ticubius@gmail.com>
 
-var UI = {}
-UI.debug = false
+var UI    = {}
+UI.konami = {}
+UI.debug  = false
 
+/*
+***
+** PAGES SWITCH
+***
+*/
 
 UI.hideElement = (element, time, callback) =>
 {
-	// FUNCTION: Hides the element with JQUERY's fadeTo function & CSS.
-	if (UI.debug) {console.log("UI:hideElement() called; time: " + time + ", element: " + element + ", callback:",  callback)}
+	// FUNCTION: hides the elements with the fadeTo function
+	var element = $(element)
 
-	$(element).fadeTo(time, 0, () =>
+	element.fadeTo(time, 0, () =>
 	{
-		$(element).addClass("hidden delete")
-		if (callback) {callback()}
+		element.addClass("hidden delete")
+		if(callback) {callback()}
 	})
 
+	if (UI.debug) {console.log("called hideElement(); {element:" + element + ", time:" + time + ", callback:" + callback)}
 	return true
 }
 
 UI.showElement = (element, time, callback) =>
 {
-	// FUNCTION: Show the element with JQUERY's fadeTo function & CSS.
-	if (UI.debug) {console.log("UI:showElement() called; time: " + time + ", element: " + element + ", callback:",  callback)}
+	// FUNCTION: show the elements with the fadeTo function
+	var element = $(element)
 
-	$(element).removeClass("hidden delete")
-	$(element).fadeTo(time, 1, () =>
+	element.removeClass("hidden delete")
+	element.fadeTo(time, 1, () =>
 	{
 		if (callback) {callback()}
 	})
-	
+
+	if (UI.debug) {console.log("called showElement(); {element:" + element + ", time:" + time + ", callback:" + callback)}
 	return true
 }
 
-UI.startTimer = (time, callback) =>
+/*
+***
+** UI ELEMENTS
+***
+*/
+
+UI.displayHealth = () =>
 {
-	// FUNCTION: Animate a timer as a background
-	if (UI.debug) {console.log("UI:startTimer() called; time:", time + ", callback:", callback)}
-
-	$(".timer").animate({height: "100%"}, time, "linear", () =>
-	{
-		$(".timer").delay(700).animate({height: 0}, 300, "linear", () => {if (callback) {callback()}})
-	})
-
-	return true
-}
-
-UI.displayHealth = () => 
-{
-	// FUNCTION: Display the health as hearts
-	lives = Player.getLives()
-	if (UI.debug) {console.log("UI:displayHealth() called; displayed lives:", lives)}
+	// FUNCTION: displays the health as hearts to the user
+	var lives = Player.getLives()
+	var input = $(".input")
+	var hp    = $(".hp")
 
 	$(".fa-heart").remove()
-	$(".input").removeClass("animate-input")
-	for (var i = 0; i < lives; i++)
-	{
-		$(".hp").append('<i class="fa fa-heart"></i> \n')
-	}
+	input.removeClass("animate-input")
 
-	if (lives == 1) {$(".input").addClass("animate-input")}
+	if (lives == 1) {input.addClass("animate-input")}
+	for (var i = 0; i < lives; i++) {hp.append("<i class=\"fa fa-heart\"></i> \n")}
 
+	if (UI.debug) {console.log("called UI:displayHealth(); {lives:" + lives + "}")}
 	return true
 }
 
 UI.displayOperation = () =>
 {
-	// FUNCTION: Displays the operation to the user
-	if (UI.debug) {console.log("UI:displayOperation() called;")}
+	// FUNCTION: displays the operation to the user
+	var latestOperation = OP.results
 
-	if (!Game.hasStarted() || !("latest" in OP.results)) {return false}
-	$(".equation").text(OP.results["latest"]["integer_1"] + " " + OP.results["latest"]["operation"] + " " + OP.results["latest"]["integer_2"])
+	if (Game.getStatus() != "running" || !("latest" in latestOperation)) {return false}
+	$(".equation").text(latestOperation["latest"]["integer_1"] + " " + latestOperation["latest"]["operation"] + " " + latestOperation["latest"]["integer_2"])
 
+	if (UI.debug) {console.log("called UI:displayOperation();")}
 	return true
 }
 
 UI.displayScore = () =>
 {
-	// FUNCTION: Displays the score to the user
-	if (UI.debug) {console.log("UI:displayScore() called;")}
+	// FUNCTION: displays the points and deaths to the user
+	var score = Player.getPoints()
+	var deaths = Player.getDeaths()
 
 	$(".fa-trophy").remove()
-	$(".score").append("<i class='fa fa-trophy' aria-hidden='true'> " + Player.getPoints() + "</i>")
-}
+	$(".fa-times").remove()
+	$(".score").append("<b><i class='fa fa-trophy' aria-hidden='true'> " + score + " / </i> <i class='fa fa-times' aria-hidden='true'> " + deaths + "</i></b>")
 
-UI.audio = () =>
-{
-	// FUNCTION: Plays the music
-	lives = Player.getLives()
-	if (UI.debug) {console.log("UI:audio() called; lives:", lives)}
-
-	if (lives > 1)
-	{
-		var music_base = $(".music_base")[0]
-		var music_stress = $(".music_stress")[0]
-
-		music_stress.currentTime = 0
-		$(".music_stress").animate({volume: 0}, 750, () =>
-		{
-			music_stress.pause()
-		})
-
-		if (music_base.paused)
-		{
-			music_base.currentTime = 0
-			music_base.volume = 0
-			music_base.play()
-			$(".music_base").animate({volume: .5}, 750)
-		}
-	}
-
-	if (lives == 1)
-	{
-		var music_base = $(".music_base")[0]
-		var music_stress = $(".music_stress")[0]
-
-		music_base.currentTime = 0
-		$(".music_base").animate({volume: 0}, 750, () =>
-		{
-			music_base.pause()
-		})
-
-		if (music_stress.paused)
-		{
-			music_stress.currentTime = 0
-			music_stress.volume = 0
-			music_stress.play()
-			$(".music_stress").animate({volume: .5}, 750)
-		}
-	}
-
-	if (lives <= 0)
-	{
-		$(".music_base").animate({volume: 0}, 750)
-		$(".music_stress").animate({volume: 0}, 750, () =>
-		{
-			$(".music_base")[0].pause()
-			$(".music_stress")[0].pause()
-		})
-
-
-	}
-
+	if (UI.debug) {console.log("called UI:displayScore();")}
 	return true
 }
 
 UI.clearInput = () =>
 {
-	// FUNCTION: Clear the input
-	if (UI.debug) {console.log("UI:clearInput() called")}
+	// FUNCTION: deletes the user's value
 
 	$(".input").val("")
-
+	$(".input").focus()
 	return true
 }
- 
-UI.resetTimer = (callback) =>
-{
-	// FUNCTION: Stops the timer
-	if (UI.debug) {console.log("UI:resetTimer() called; callback:", callback)}
 
-	$(".timer").stop()
-	$(".timer").animate({height: "0"}, 750, "linear", () =>
+
+/*
+***
+** AUDIO
+***
+*/
+
+UI.setAudio = (type) =>
+{
+	// FUNCTION: starts the music
+	var music_calm   = $(".music_calm")
+	var music_stress = $(".music_stress")
+
+	if (type == "calm")
 	{
-		setTimeout(() => {if (callback) {callback()}}, 750)
-	})
+		if ((music_stress[0].volume > 0))
+		{
+			music_stress.animate({volume: 0}, 750, () =>
+			{
+				music_stress[0].pause()
+				music_stress[0].currentTime = 0
+			})
+		}
+
+		if (music_calm[0].paused)
+		{
+			music_calm[0].play()
+			music_calm.animate({volume: .50}, 500)
+		}
+	}
+
+	if (type == "stress")
+	{
+		if ((music_calm[0].volume > 0))
+		{
+			music_calm.animate({volume: 0}, 750, () =>
+			{
+				music_calm[0].pause()
+				music_calm[0].currentTime = 0
+			})
+		}
+
+		if (music_stress[0].paused)
+		{
+			music_stress[0].play()
+			music_stress.animate({volume: .50}, 500)
+		}
+	}
+
+	if (type == "stop")
+	{
+		music_calm.animate({volume: 0}, 250)
+		music_stress.animate({volume: 0}, 250, () =>
+		{
+			music_calm[0].pause()
+			music_stress[0].pause()
+		})
+	}
+
+	if (UI.debug) {console.log("called UI:setAudio(); {type: " + type + "}")}
+	return true
 }
 
 /*
-UI.generateResults = () =>
+***
+** TIMER
+***
+*/
+
+UI.startTimer = (time, callback) =>
 {
-	// UI.hideElement(".welcome"); UI.showElement(".game"); UI.generateResults()
-	if (UI.debug) {console.log("UI:generateResults() called;")}
-	var rounds = Game.getCurrentRound()
+	// FUNCTION: Starts the animation of the timer
 
-	var data = 
+	$(".timer").css({"animation": "timer " + time + "s linear", "animation-fill-mode": "forwards"})
+	clearTimeout(UI.timer)
+	UI.timer = setTimeout(() =>
 	{
-		labels: Array.apply(null, {length: rounds}).map(Number.call, Number),
-		datasets: 
-		[
-			{
-				label: "My First dataset",
-				fillColor: "rgba(220,220,220,0.2)",
-				strokeColor: "rgba(220,220,220,1)",
-				pointColor: "rgba(220,220,220,1)",
-				pointStrokeColor: "#fff",
-				pointHighlightFill: "#fff",
-				pointHighlightStroke: "rgba(220,220,220,1)",
-				data: OP.results.points
-			}
-		]
-	}
+		UI.resetTimer(callback)
+	}, (time)*999)
 
-	var options = 
-	{
-		maintainAspectRatio: true,
-		scaleOverride: false,
-		scaleSteps: 10,
-		scaleStepWidth: 10,
-		scaleStartValue: 0,
-		animation: true,
-
-		responsive: false
-	}
-
-	var ctx = $("#myChart")[0].getContext("2d")
-	var myNewChart = new Chart(ctx).Line(data, options)
+	if (UI.debug) {console.log("called UI:startTimer(); {time: " + time + "}")}
+	return true
 }
 
+UI.resetTimer = (callback) =>
+{
+	// FUNCTION: Stops the animation of the timer
+
+	$(".timer").css({"animation": "stopTimer .25s linear", "animation-fill-mode": "forwards"})
+
+	UI.resetKonami()
+	setTimeout(() => {if(callback) {callback()}}, 250)
+
+	if (UI.debug) {console.log("called UI:resetTimer();")}
+	return true
+}
+
+
+/*
+***
+** KONAMI
+***
 */
+
+UI.konamiHideInput = () =>
+{
+	// FUNCTION: Sets the input type to password, so we hide what the user inputs
+	$(".input").attr("type", "password")
+}
+
+UI.konamiHideText = (timer) =>
+{
+	// FUNCTION: Adds the animation of setting equation's opacity to 0
+	$(".equation").css({"animation": "hideText 1s linear", "animation-fill-mode": "forwards"})
+}
+
+UI.konamiHideTimer = () =>
+{
+	// FUNCTION: Adds the animation of setting timer's opacity to 0
+	$(".timer").css({"animation": "stopTimer 1s linear", "animation-fill-mode": "forwards"})
+}
+
+UI.resetKonami = () =>
+{
+	// FUNCTION: Clears the mess made by the konami code
+	$(".input").attr("type", "text")
+	$(".equation").css({"animation": ""})
+}

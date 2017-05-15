@@ -12,43 +12,161 @@
 }
 
 *                                    {font-family: "Roboto"; transition: .2s; overflow: hidden;}
-html, body                           {margin: 0; padding: 0; background: #1a1a1a;}
+html, body                           {margin: 0; padding: 0; background: #1a1a1a; height: 100%; width: 100%;}
 
 .hidden                              {opacity: 0;}
 .delete                              {display: none;}
-.title                               {color: #FF6700; font-size: 32px; text-transform: uppercase; margin: 0;}
+.title                               {color: #FF6700; font-size: 32px; text-transform: uppercase; margin: 0; }
 .text                                {color: #FFF; font-size: 18px; margin: 50px 0;}
+.timer                               {background: red; opacity: 0; position: absolute; height: 100%; width: 100%; animation-fill-mode: forwards} 
+.paused 							 {animation: stopTimer .75s linear !important;}
 
 .welcome, .game                      {position: absolute; left: 50%; top: 50%; transform: Translate(-50%, -50%); text-align: center;}
-
 .welcome .difficulty                 {cursor: pointer; width: 100%; height: 50px; border: 2px solid #ff6700; background: transparent; text-align: center; color: #FFF; text-align-last: center; -webkit-appearance: none;}
 .welcome .difficulty option          {color: black; background: white; padding: 10px 0;}
 .welcome .difficulty option:disabled {background: black; color: white;}
 .welcome .start, .results .return    {background: transparent; float: right; margin-top: 20px; width: 150px; height: 50px; border: 2px solid #ff6700; text-align: center; color: #FFF;}
 .welcome .start:hover                {background: #FFF; color: #ff6700;}
 
-.game .animate-text                  {animation: flash-text 1s infinite;}
-.game .animate-input                 {animation: flash-input 1s infinite;}
-.game .input                         {width: 300px; height: 50px; margin-top: 15px; border: 1px solid #FF6700; background: transparent; color: #FFF; padding: 0 50px; outline: none;}
-.game .score                         {color: #FF6700; float: right; line-height: 50px; margin-left: 15px;}
-.game .hp                            {margin-top: 15px; color: #FF6700;}
+.game .animate-text                  {animation: flashtext .75s infinite linear;}
+.game .animate-input                 {animation: flashinput .75s infinite linear;}
+.game .input                         {width: 300px; height: 50px; margin: 15px; border: 1px solid #FF6700; background: transparent; color: #FFF; padding: 0 50px; outline: none;}
+.game .score                         {color: #FF6700; float: right; line-height: 50px; position: relative;}
+.game .hp                            {color: #FF6700;}
 
-.results                             {position: absolute; left: 50%; top: 50%; transform: Translate(-50%, -50%); width: 50%; height: 50%;	}
-.results div                         {width: 100%; height: 100%; }
-
-.timer                               {background: red; opacity: .1; position: absolute; height: 0%; width: 100%;} 
-
-
-@keyframes flash-input
+@keyframes flashinput
 {
 	000% { border: 1px solid #FF6700}
 	050% { border: 1px solid red}
 	100% { border: 1px solid #FF6700}
 }
 
-@keyframes flash-text
+@keyframes flashtext
 {
 	000% { color:#FF6700}
-	050% { color:red}
+	050% { color:white}
 	100% { color:#FF6700}
+}
+
+@keyframes timer
+{
+	000% {transform: translateY(-100%); opacity: .1;}
+	100% {transform: translateY(-000%); opacity: .1;}
+}
+
+@keyframes stopTimer
+{
+	000% {opacity: .1;}
+	100% {opacity: 0;}
+}
+
+@keyframes hideText
+{
+	000% {opacity: 1;}
+	100% {opacity: 0;}
+}
+
+@keyframes randomBackground
+{
+	000% {background: AliceBlue}
+	001% {background: AntiqueWhite}
+	002% {background: Aqua}
+	003% {background: Aquamarine}
+	004% {background: Azure}
+	005% {background: Beige}
+	006% {background: Bisque}
+	007% {background: Black}
+	008% {background: BlanchedAlmond}
+	009% {background: Blue}
+	010% {background: BlueViolet}
+	011% {background: Brown}
+	012% {background: BurlyWood}
+	013% {background: CadetBlue}
+	014% {background: Chartreuse}
+	015% {background: Chocolate}
+	016% {background: Coral}
+	017% {background: CornflowerBlue}
+	018% {background: Cornsilk}
+	019% {background: Crimson}
+	020% {background: Cyan}
+	021% {background: DarkBlue}
+	022% {background: DarkCyan}
+	023% {background: DarkGoldenRod}
+	024% {background: DarkGray}
+	025% {background: DarkGrey}
+	026% {background: DarkGreen}
+	027% {background: DarkKhaki}
+	028% {background: DarkMagenta}
+	029% {background: DarkOliveGreen}
+	030% {background: DarkOrange}
+	031% {background: DarkOrchid}
+	032% {background: DarkRed}
+	033% {background: DarkSalmon}
+	034% {background: DarkSeaGreen}
+	035% {background: DarkSlateBlue}
+	036% {background: DarkSlateGray}
+	037% {background: DarkSlateGrey}
+	038% {background: DarkTurquoise}
+	039% {background: DarkViolet}
+	040% {background: DeepPink}
+	041% {background: DeepSkyBlue}
+	042% {background: DimGray}
+	043% {background: DimGrey}
+	044% {background: DodgerBlue}
+	045% {background: FireBrick}
+	046% {background: FloralWhite}
+	047% {background: ForestGreen}
+	048% {background: Fuchsia}
+	049% {background: Gainsboro}
+	050% {background: GhostWhite}
+	051% {background: Gold}
+	052% {background: GoldenRod}
+	053% {background: Gray}
+	054% {background: Grey}
+	055% {background: Green}
+	056% {background: GreenYellow}
+	057% {background: HoneyDew}
+	058% {background: HotPink}
+	059% {background: IndianRed }
+	060% {background: Indigo }
+	061% {background: Ivory}
+	062% {background: Khaki}
+	063% {background: Lavender}
+	064% {background: LavenderBlush}
+	065% {background: LawnGreen}
+	066% {background: LemonChiffon}
+	067% {background: LightBlue}
+	068% {background: LightCoral}
+	069% {background: LightCyan}
+	070% {background: LightGoldenRodYellow}
+	071% {background: LightGray}
+	072% {background: LightGrey}
+	073% {background: LightGreen}
+	074% {background: LightPink}
+	075% {background: LightSalmon}
+	076% {background: LightSeaGreen}
+	077% {background: LightSkyBlue}
+	078% {background: LightSlateGray}
+	079% {background: LightSlateGrey}
+	080% {background: LightSteelBlue}
+	081% {background: LightYellow}
+	082% {background: Lime}
+	083% {background: LimeGreen}
+	084% {background: Linen}
+	085% {background: Magenta}
+	086% {background: Maroon}
+	087% {background: MediumAquaMarine}
+	088% {background: MediumBlue}
+	089% {background: MediumOrchid}
+	090% {background: MediumPurple}
+	091% {background: MediumSeaGreen}
+	092% {background: MediumSlateBlue}
+	093% {background: MediumSpringGreen}
+	094% {background: MediumTurquoise}
+	095% {background: MediumVioletRed}
+	096% {background: MidnightBlue}
+	097% {background: MintCream}
+	098% {background: MistyRose}
+	099% {background: Moccasin}
+	100% {background: NavajoWhite}
 }
