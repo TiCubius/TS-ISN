@@ -108,6 +108,7 @@ Game.stop = () =>
 
 	if (status != "stopped")
 	{
+		Player.reset()
 		UI.setAudio("stop")
 		UI.hideElement(".game", "slow", () =>
 		{

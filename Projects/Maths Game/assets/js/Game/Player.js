@@ -47,3 +47,12 @@ Player.setDeaths = (deaths) =>
 	// FUNCTION: sets the player's deaths (lost rounds) to the choosen value
 	return Player.status.deaths = deaths
 }
+
+Player.reset = () =>
+{
+	// FUNCTION: resets all score
+	Player.setPoints(0)
+	Player.setDeaths(0)
+
+	return true
+}
