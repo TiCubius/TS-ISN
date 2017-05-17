@@ -7,7 +7,11 @@ Events.debug = true
 Events.status =
 {
 	konami_status: 0,
-	konami: [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]
+	konami: [38, 38, 40, 40, 37, 39, 37, 39, 66, 65], // UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A
+
+	cheat_status: 0,
+	cheat: [67, 72, 69, 65, 84] // c h e a t
+	
 }
 
 Events.listen = () =>
@@ -40,6 +44,7 @@ Events.listen = () =>
 		{
 			if (Events.status.konami_status == Events.status.konami.length)
 			{
+				console.warn("KONAMI MODE ACTIVATED")
 				Events.status.konami_status = 0
 				Game.start(true)
 			}
@@ -47,6 +52,19 @@ Events.listen = () =>
 		else
 		{
 			Events.status.konami_status = 0
+		}
+
+		if (event.keyCode === Events.status.cheat[Events.status.cheat_status++])
+		{
+			if (Events.status.cheat_status == Events.status.cheat.length)
+			{
+				console.warn("CHEAT MODE ACTIVATED")
+				Events.status.interval = setInterval(() => Game.winRound(), 2500)
+			}
+		}
+		else
+		{
+			Events.status.cheat_status = 0
 		}
 	})	
 
