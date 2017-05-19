@@ -1,5 +1,5 @@
-// ISN Project / game system 
-// VERSION 2.01, latest updated: 30/04/2017
+// ISN Project / GAME SYSTEM
+// VERSION 2.02, latest updated: 19/05/2017
 // TARTIERE kevin & arnaud louis, <ticubius@gmail.com>
 
 var Game    = {}

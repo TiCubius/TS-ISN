@@ -14,8 +14,8 @@ I don't know why you'd want to, but sure.
 As long as you credit me *(sort of)* or tell me what you're using it for :)
 
 ## Projects
-- [ ] 30/04/2017 - Mathematic Game, HTML/CSS/JS
-- [x] 12/01/2017 - Pascal's triangle
+- [x] 19/05/2017 - Mathematic Game,   HTML/CSS/JS
+- [x] 12/01/2017 - Pascal's triangle, PYTHON
 
 ## SCREENSHOTS
 ### Maths Game:WELCOME
